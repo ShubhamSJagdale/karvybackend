@@ -96,11 +96,7 @@ exports.createCountry = (req, res) => {
   getData
     .then((dataRes) => {
       let countryInfo = JSON.parse(dataRes);
-      if (
-        countryInfo?.countries.filter(
-          (item) => item.rank === req.body.rank && item.name === req.body.name
-        ).length !== 0
-      ) {
+       
         countryInfo.countries = [...countryInfo.countries, req.body];
         fs.writeFile(
           `${process.env.BASEPATH}/assets/data/data.json`,
@@ -112,7 +108,7 @@ exports.createCountry = (req, res) => {
             }
           }
         );
-      }
+      
       res.json({ hasError: false, msg: "Create country successful" });
     })
     .catch((err) => res.status(500).json({ errMsg: err.toString() }));
