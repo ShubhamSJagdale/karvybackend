@@ -1,8 +1,9 @@
 const fs = require("fs");
+const pathMod = require("path");
 
 const getData = new Promise((resolve, reject) => {
   fs.readFile(
-    `${process.env.BASEPATH}/assets/data/data.json`,
+    pathMod.join(pathMod.resolve("./"), "assets", "data", "data.json"),
     "utf8",
     (err, data) => {
       if (err) {

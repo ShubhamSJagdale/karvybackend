@@ -1,8 +1,10 @@
 const fs = require("fs");
 const multer = require("multer");
+const pathMod = require("path");
+
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, `${process.env.BASEPATH}/assets/images`);
+    callback(null, pathMod.join(pathMod.resolve("./"), "assets", "images"));
   },
   filename: (req, file, callback) => {
     callback(null, file.originalname);
@@ -62,7 +64,7 @@ exports.getCountryImage = (req, res) => {
     );
 
     fs.readFile(
-      `${process.env.BASEPATH}/assets/${path[0].flag}`,
+      pathMod.join(pathMod.resolve("./"), "assets", path[0].flag),
       (err, img) => {
         if (err) {
           res.status(500).send({ msg: err });
@@ -92,24 +94,29 @@ exports.getContinent = (req, res) => {
 };
 
 exports.createCountry = (req, res) => {
-  console.log(req.body);
   getData
     .then((dataRes) => {
       let countryInfo = JSON.parse(dataRes);
-       
-        countryInfo.countries = [...countryInfo.countries, req.body];
-        fs.writeFile(
-          `${process.env.BASEPATH}/assets/data/data.json`,
-          JSON.stringify(countryInfo),
-          (err) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
+      let dupCountry = countryInfo?.countries?.filter(item => item.rank === req.body?.rank || item.name === req.body?.name );
+     
+      if (dupCountry.length > 0) {
+        res.status(500).json({ errMsg: "Duplicate record found" })
+      }
+      countryInfo.countries = [...countryInfo.countries, req.body];
+      fs.writeFile(
+        pathMod.join(pathMod.resolve("./"), "assets", "data", "data.json"),
+        JSON.stringify(countryInfo),
+        (err) => {
+          if (err) {
+            console.error(err);
+            return;
           }
-        );
+          res.json({ hasError: false, msg: "Create country successful" });
+        }
+       
+      );
+
       
-      res.json({ hasError: false, msg: "Create country successful" });
     })
     .catch((err) => res.status(500).json({ errMsg: err.toString() }));
 };
